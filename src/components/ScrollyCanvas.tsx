@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, RefObject } from "react";
+import { useEffect, useRef, useState, RefObject, useCallback } from "react";
 import NextImage from "next/image";
 import { useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -45,20 +45,7 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
     setImages(loadedImages);
   }, []);
 
-  // Effect to draw the initial frame once images are loaded
-  useEffect(() => {
-    if (images.length > 0 && imagesLoaded > 0 && canvasRef.current) {
-      const dpr = window.devicePixelRatio || 1;
-      // Only resize if needed to avoid flickering
-      if (canvasRef.current.width === 0) {
-        canvasRef.current.width = window.innerWidth * dpr;
-        canvasRef.current.height = window.innerHeight * dpr;
-      }
-      drawImage(Math.round(frameIndex.get()));
-    }
-  }, [images, imagesLoaded]);
-
-  const drawImage = (index: number) => {
+  const drawImage = useCallback((index: number) => {
     if (!canvasRef.current || images.length === 0 || !images[index]) return;
 
     const canvas = canvasRef.current;
@@ -101,7 +88,20 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
     // ctx.fillStyle = "black";
     // ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-  };
+  }, [images]);
+
+  // Effect to draw the initial frame once images are loaded
+  useEffect(() => {
+    if (images.length > 0 && imagesLoaded > 0 && canvasRef.current) {
+      const dpr = window.devicePixelRatio || 1;
+      // Only resize if needed to avoid flickering
+      if (canvasRef.current.width === 0) {
+        canvasRef.current.width = window.innerWidth * dpr;
+        canvasRef.current.height = window.innerHeight * dpr;
+      }
+      drawImage(Math.round(frameIndex.get()));
+    }
+  }, [images, imagesLoaded, drawImage, frameIndex]);
 
   useMotionValueEvent(frameIndex, "change", (latest) => {
     requestAnimationFrame(() => drawImage(Math.round(latest)));
@@ -118,9 +118,12 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
     };
 
     window.addEventListener("resize", handleResize);
-    setTimeout(handleResize, 50); 
-    return () => window.removeEventListener("resize", handleResize);
-  }, [images]); 
+    const timeoutId = setTimeout(handleResize, 50); 
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, [images, drawImage, frameIndex]); 
 
   return (
     <div className="sticky top-0 h-screen w-full overflow-hidden bg-black flex items-center justify-center">
