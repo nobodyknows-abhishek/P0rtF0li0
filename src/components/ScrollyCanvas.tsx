@@ -35,8 +35,15 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
 
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new window.Image();
-      img.src = getFramePath(i);
+      const path = getFramePath(i);
+      img.src = path;
       img.onload = () => {
+        loadedCount++;
+        setImagesLoaded(loadedCount);
+      };
+      img.onerror = () => {
+        console.error(`Failed to load image: ${path}`);
+        // Still increment to unblock loading screen even if some fail
         loadedCount++;
         setImagesLoaded(loadedCount);
       };
@@ -143,9 +150,6 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
 
       {mounted && typeof document !== "undefined" && imagesLoaded < Math.min(FRAME_COUNT, 30) && createPortal(
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-[50px] text-white transition-opacity duration-1000">
-          <div className="mb-4 text-sm font-mono tracking-widest uppercase text-white/80">
-           Redifing Your Future
-          </div>
           <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
             <div 
               className="h-full bg-white transition-all duration-100 ease-out"
