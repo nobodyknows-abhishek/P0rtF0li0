@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { RefObject } from "react";
+import { RefObject, useState, useEffect } from "react";
 
 export default function Overlay({
   containerRef,
