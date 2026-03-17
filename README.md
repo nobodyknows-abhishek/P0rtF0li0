@@ -39,8 +39,8 @@ A state-of-the-art, immersive portfolio experience built with **Next.js 14**, **
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/portfolio-scrollytelling.git
-   cd portfolio-scrollytelling
+   git clone https://github.com/nobodyknows-abhishek/P0rtF0li0.git
+   cd P0rtF0li0
    ```
 
 2. **Install dependencies**:
