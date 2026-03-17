@@ -13,6 +13,11 @@ export default function Overlay({
     offset: ["start start", "end end"],
   });
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Section 1: 0% -> "Abhishek Verma" (center)
   const opacity1 = useTransform(
     scrollYProgress,
@@ -39,22 +44,24 @@ export default function Overlay({
     [-50, 0, 0, 50],
   );
 
-  // Section 3: 63% -> "Bridging front-end & backend." (right)
+  // Section 3: 60% -> "Bridging front-end & backend." (right)
   const opacity3 = useTransform(
     scrollYProgress,
-    [0.63, 0.7, 0.78, 0.85],
+    [0.6, 0.7, 0.85, 0.98],
     [0, 1, 1, 0],
   );
   const y3 = useTransform(
     scrollYProgress,
-    [0.63, 0.7, 0.78, 0.85],
+    [0.6, 0.7, 0.85, 0.98],
     [100, 0, 0, -100],
   );
   const x3 = useTransform(
     scrollYProgress,
-    [0.63, 0.7, 0.78, 0.85],
+    [0.6, 0.7, 0.85, 0.98],
     [50, 0, 0, -50],
   );
+
+  if (!mounted) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 w-full">
