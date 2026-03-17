@@ -13,7 +13,7 @@ const getFramePath = (index: number) => {
 };
 
 export default function ScrollyCanvas({ containerRef }: { containerRef: RefObject<HTMLDivElement> }) {
-  const [images, setImages] = useState<HTMLImageElement[]>([]);
+  const [images, setImages] = useState<(HTMLImageElement | null)[]>(Array(FRAME_COUNT).fill(null));
   const [imagesLoaded, setImagesLoaded] = useState(0);
   const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,38 +30,81 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
   const frameIndex = useTransform(scrollYProgress, [0, 1], [0, FRAME_COUNT - 1]);
 
   useEffect(() => {
-    const loadedImages: HTMLImageElement[] = [];
     let loadedCount = 0;
 
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new window.Image();
-      const path = getFramePath(i);
-      img.src = path;
-      img.onload = () => {
-        loadedCount++;
-        setImagesLoaded(loadedCount);
-      };
-      img.onerror = () => {
-        console.error(`Failed to load image: ${path}`);
-        // Still increment to unblock loading screen even if some fail
-        loadedCount++;
-        setImagesLoaded(loadedCount);
-      };
-      loadedImages.push(img);
-    }
-    setImages(loadedImages);
+    const loadBatch = async (start: number, size: number) => {
+      const end = Math.min(start + size, FRAME_COUNT);
+      const batchPromises = [];
+      const batchIndices: number[] = [];
+
+      for (let i = start; i < end; i++) {
+        batchIndices.push(i);
+        const promise = new Promise<HTMLImageElement | null>((resolve) => {
+          const img = new window.Image();
+          const path = getFramePath(i);
+          img.src = path;
+          img.onload = () => {
+            loadedCount++;
+            setImagesLoaded(loadedCount);
+            resolve(img);
+          };
+          img.onerror = () => {
+            console.error(`Failed to load image: ${path}`);
+            loadedCount++;
+            setImagesLoaded(loadedCount);
+            resolve(null);
+          };
+        });
+        batchPromises.push(promise);
+      }
+      
+      const loadedBatchImages = await Promise.all(batchPromises);
+      
+      setImages(prev => {
+        const next = [...prev];
+        batchIndices.forEach((index, i) => {
+          next[index] = loadedBatchImages[i];
+        });
+        return next;
+      });
+
+      if (end < FRAME_COUNT) {
+        setTimeout(() => loadBatch(end, size), 20);
+      }
+    };
+
+    loadBatch(0, 10);
   }, []);
 
   const drawImage = useCallback((index: number) => {
-    if (!canvasRef.current || images.length === 0 || !images[index]) return;
+    if (!canvasRef.current || images.length === 0) return;
+
+    // Find the closest loaded frame
+    let img = images[index];
+    if (!img || !img.complete || img.naturalHeight === 0) {
+      // Look for the closest loaded neighbor
+      let found = false;
+      for (let offset = 1; offset < 20; offset++) {
+        // Try earlier frames first (usually more helpful during scroll down)
+        const prev = images[index - offset];
+        if (prev && prev.complete && prev.naturalHeight !== 0) {
+          img = prev;
+          found = true;
+          break;
+        }
+        const next = images[index + offset];
+        if (next && next.complete && next.naturalHeight !== 0) {
+          img = next;
+          found = true;
+          break;
+        }
+      }
+      if (!found) return;
+    }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const img = images[index];
-    // don't draw if not loaded
-    if (!img.complete || img.naturalHeight === 0) return;
+    if (!ctx || !img) return;
 
     const canvasRatio = canvas.width / canvas.height;
     const imgRatio = img.width / img.height;
@@ -75,14 +118,10 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
       drawHeight = canvas.width / imgRatio;
       offsetY = (canvas.height - drawHeight) / 2;
     } else {
-      // In portrait, we handle cover slightly differently to avoid over-zooming
-      // We'll scale based on width if the aspect ratio is extremely vertical
       if (canvasRatio < 0.6) {
-        // More of a "soft contain" for very narrow screens
         drawWidth = canvas.width * 1.5; 
         drawHeight = drawWidth / imgRatio;
         offsetX = (canvas.width - drawWidth) / 2;
-        // Shift up slightly to keep head in frame if it's tall
         offsetY = (canvas.height - drawHeight) * 0.3; 
       } else {
         drawWidth = canvas.height * imgRatio;
@@ -91,9 +130,6 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Fill background with black to avoid transparency issues
-    // ctx.fillStyle = "black";
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
   }, [images]);
 
