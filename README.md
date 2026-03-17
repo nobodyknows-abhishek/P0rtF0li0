@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Premium Scrollytelling Portfolio
 
-## Getting Started
+A state-of-the-art, immersive portfolio experience built with **Next.js 14**, **Framer Motion**, and **Tailwind CSS**. This project features a unique "Scrollytelling" narrative, where every scroll transition is a cinematic experience.
 
-First, run the development server:
+![Portfolio Preview](public/Pfolio.gif)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🎬 Immersive Scrollytelling
+- **Dynamic 3D-Like Experience**: Interactive background sequences that react to user scroll depth.
+- **Micro-Animations**: Highly refined entry reveals, staggered content loading, and light-sweep hover effects.
+- **Magnetic Interactions**: Tactile hover states for navigation and social links using high-frequency magnetic physics.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 📱 Premium Responsive Design
+- **Dual-Layer Project Carousel**: Mobile-optimized project galleries featuring an `object-contain` foreground and a blurred background layer to ensure perfect visibility without cropping.
+- **Glassmorphic UI**: Sleek, modern interface using backdrop blurs and subtle borders for a high-end SaaS aesthetic.
+- **Fully Interactive Mobile Menu**: Liquid-style animated hamburger navigation for seamless mobile browsing.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🛠️ Technical Excellence
+- **Next.js 14 App Router**: Utilizing the latest in React server and client component architecture.
+- **Performance Optimized**: Lazy-loaded animations and optimized asset delivery for fast initial paints.
+- **Production Ready**: Verified build process and deployment-ready configuration for platforms like Render or Vercel.
 
-## Learn More
+## 🛠️ Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: Next.js 14 (App Router)
+- **Animation**: Framer Motion
+- **Styling**: Tailwind CSS (v3/v4 compatible)
+- **Icons**: Lucide React
+- **Language**: TypeScript
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🏁 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
+- Node.js 18+ 
+- npm / yarn / pnpm
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/portfolio-scrollytelling.git
+   cd portfolio-scrollytelling
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Verify site**:
+   Open [http://localhost:3000](http://localhost:3000) (or the port specified in your terminal) to see the live site.
+
+## 📂 Project Structure
+
+- `src/app`: Next.js App Router pages and layouts.
+- `src/components`: Reusable UI components (Magnetic, Carousel, ScrollyCanvas).
+- `src/data`: Centralized project and experience data.
+- `public`: Static assets, images, and resume.
+
+## 📜 License
+This project is open-source and available under the MIT License.
+
