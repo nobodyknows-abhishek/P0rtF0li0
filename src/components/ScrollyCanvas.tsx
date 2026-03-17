@@ -69,11 +69,20 @@ export default function ScrollyCanvas({ containerRef }: { containerRef: RefObjec
       });
 
       if (end < FRAME_COUNT) {
+        // Continue with the next batch
         setTimeout(() => loadBatch(end, size), 20);
       }
     };
 
-    loadBatch(0, 10);
+    // Prioritized loading: Load first 40 frames quickly, then the rest in batches
+    const startLoading = async () => {
+      await loadBatch(0, 40); // Initial high-priority batch
+      if (FRAME_COUNT > 40) {
+        loadBatch(40, 15); // Rest in smaller background batches
+      }
+    };
+
+    startLoading();
   }, []);
 
   const drawImage = useCallback((index: number) => {

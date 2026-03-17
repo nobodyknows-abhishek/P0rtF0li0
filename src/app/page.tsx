@@ -19,7 +19,7 @@ export default function Home() {
     <main className="bg-black text-white selection:bg-white selection:text-black antialiased font-sans">
       <ScrollProgress />
       <HamburgerNav />
-      <div id="hero" ref={containerRef} className="relative h-[500vh] w-full bg-black">
+      <div id="hero" ref={containerRef} className="relative h-[800vh] w-full bg-black">
         <ScrollyCanvas containerRef={containerRef} />
         <Overlay containerRef={containerRef} />
       </div>
