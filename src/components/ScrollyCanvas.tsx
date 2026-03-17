@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, RefObject, useCallback } from "react";
 import NextImage from "next/image";
 import { useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-import { createPortal } from "react-dom";
 
 const FRAME_COUNT = 192; // 0 to 191
 
@@ -21,12 +20,8 @@ export default function ScrollyCanvas({
     Array(FRAME_COUNT).fill(null),
   );
   const [imagesLoaded, setImagesLoaded] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -83,7 +78,15 @@ export default function ScrollyCanvas({
       }
     };
 
-    loadBatch(0, 10);
+    // Prioritized loading: Load first 40 frames quickly, then the rest in batches
+    const startLoading = async () => {
+      await loadBatch(0, 40); // Initial high-priority batch
+      if (FRAME_COUNT > 40) {
+        loadBatch(40, 15); // Rest in smaller background batches
+      }
+    };
+
+    startLoading();
   }, []);
 
   const drawImage = useCallback(
@@ -200,22 +203,6 @@ export default function ScrollyCanvas({
         />
       </div>
 
-      {mounted &&
-        typeof document !== "undefined" &&
-        imagesLoaded < Math.min(FRAME_COUNT, 30) &&
-        createPortal(
-          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-[50px] text-white transition-opacity duration-1000">
-            <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-white transition-all duration-100 ease-out"
-                style={{
-                  width: `${(imagesLoaded / Math.min(FRAME_COUNT, 30)) * 100}%`,
-                }}
-              />
-            </div>
-          </div>,
-          document.body,
-        )}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0 h-full w-full object-cover opacity-90 transition-opacity duration-1000"

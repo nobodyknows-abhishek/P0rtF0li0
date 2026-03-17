@@ -13,46 +13,46 @@ export default function Overlay({
     offset: ["start start", "end end"],
   });
 
-  // Section 1: 0% -> "My Name. Creative Developer." (center)
+  // Section 1: 0% -> "Abhishek Verma" (center)
   const opacity1 = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.25, 0.3],
+    [0, 0.1, 0.2, 0.28],
     [1, 1, 0, 0],
   );
   const y1 = useTransform(scrollYProgress, [0, 0.25], [0, -100]);
   const scale1 = useTransform(scrollYProgress, [0, 0.25], [1, 1.1]);
 
-  // Section 2: 30% -> "I build digital experiences." (left)
+  // Section 2: 32% -> "I build scalable apps." (left)
   const opacity2 = useTransform(
     scrollYProgress,
-    [0.3, 0.4, 0.5, 0.6],
+    [0.32, 0.4, 0.5, 0.58],
     [0, 1, 1, 0],
   );
   const y2 = useTransform(
     scrollYProgress,
-    [0.3, 0.4, 0.5, 0.6],
+    [0.32, 0.4, 0.5, 0.58],
     [100, 0, 0, -100],
   );
   const x2 = useTransform(
     scrollYProgress,
-    [0.3, 0.4, 0.5, 0.6],
+    [0.32, 0.4, 0.5, 0.58],
     [-50, 0, 0, 50],
   );
 
-  // Section 3: 65% -> "Bridging design and engineering." (right)
+  // Section 3: 63% -> "Bridging front-end & backend." (right)
   const opacity3 = useTransform(
     scrollYProgress,
-    [0.65, 0.75, 0.85, 0.95],
+    [0.63, 0.7, 0.78, 0.85],
     [0, 1, 1, 0],
   );
   const y3 = useTransform(
     scrollYProgress,
-    [0.65, 0.75, 0.85, 0.95],
+    [0.63, 0.7, 0.78, 0.85],
     [100, 0, 0, -100],
   );
   const x3 = useTransform(
     scrollYProgress,
-    [0.65, 0.75, 0.85, 0.95],
+    [0.63, 0.7, 0.78, 0.85],
     [50, 0, 0, -50],
   );
 
@@ -64,7 +64,7 @@ export default function Overlay({
           style={{ opacity: opacity1, y: y1, scale: scale1 }}
           className="absolute text-center flex flex-col items-center justify-center w-full px-4"
         >
-          <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-8xl xl:text-[10rem] font-bold tracking-tighter mb-2 md:mb-4 text-transparent bg-clip-text bg-gradient-to-br from-white to-white/60 leading-none">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl xl:text-[10rem] font-bold tracking-tighter mb-2 md:mb-4 text-transparent bg-clip-text bg-gradient-to-br from-white to-white/60 leading-none">
             Abhishek Verma
           </h1>
           <p className="text-sm sm:text-lg md:text-2xl font-light tracking-widest text-white/80 uppercase">
