@@ -1,6 +1,11 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValueEvent,
+} from "framer-motion";
 import { RefObject, useState, useEffect } from "react";
 
 export default function Overlay({
@@ -14,9 +19,19 @@ export default function Overlay({
   });
 
   const [mounted, setMounted] = useState(false);
+  const [showDebug, setShowDebug] = useState(false);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [maxProgress, setMaxProgress] = useState(0);
+
   useEffect(() => {
     setMounted(true);
+    setShowDebug(window.location.search.includes("debugScroll=1"));
   }, []);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setCurrentProgress(latest);
+    setMaxProgress((prev) => (latest > prev ? latest : prev));
+  });
 
   // Section 1: 0% -> "Abhishek Verma" (center)
   const opacity1 = useTransform(
@@ -27,37 +42,37 @@ export default function Overlay({
   const y1 = useTransform(scrollYProgress, [0, 0.25], [0, -100]);
   const scale1 = useTransform(scrollYProgress, [0, 0.25], [1, 1.1]);
 
-  // Section 2: 32% -> "I build scalable apps." (left)
+  // Section 2: Enter earlier and exit sooner to avoid viewport-dependent stalls.
   const opacity2 = useTransform(
     scrollYProgress,
-    [0.32, 0.4, 0.5, 0.58],
+    [0.24, 0.32, 0.42, 0.52],
     [0, 1, 1, 0],
   );
   const y2 = useTransform(
     scrollYProgress,
-    [0.32, 0.4, 0.5, 0.58],
+    [0.24, 0.32, 0.42, 0.52],
     [100, 0, 0, -100],
   );
   const x2 = useTransform(
     scrollYProgress,
-    [0.32, 0.4, 0.5, 0.58],
+    [0.24, 0.32, 0.42, 0.52],
     [-50, 0, 0, 50],
   );
 
-  // Section 3: 60% -> "Bridging front-end & backend." (right)
+  // Section 3: Start earlier so it still appears on shorter effective scroll ranges.
   const opacity3 = useTransform(
     scrollYProgress,
-    [0.6, 0.7, 0.85, 0.98],
+    [0.48, 0.58, 0.8, 0.96],
     [0, 1, 1, 0],
   );
   const y3 = useTransform(
     scrollYProgress,
-    [0.6, 0.7, 0.85, 0.98],
+    [0.48, 0.58, 0.8, 0.96],
     [100, 0, 0, -100],
   );
   const x3 = useTransform(
     scrollYProgress,
-    [0.6, 0.7, 0.85, 0.98],
+    [0.48, 0.58, 0.8, 0.96],
     [50, 0, 0, -50],
   );
 
@@ -104,6 +119,13 @@ export default function Overlay({
             </span>
           </h2>
         </motion.div>
+
+        {showDebug ? (
+          <div className="fixed left-3 bottom-3 z-[60] rounded border border-white/25 bg-black/70 px-2 py-1 text-[11px] font-mono leading-tight text-white/90">
+            <div>scroll: {currentProgress.toFixed(3)}</div>
+            <div>max: {maxProgress.toFixed(3)}</div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
