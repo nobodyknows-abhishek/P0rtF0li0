@@ -23,7 +23,6 @@ export default function ScrollyCanvas({
   const [successfulImagesLoaded, setSuccessfulImagesLoaded] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
