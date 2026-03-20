@@ -42,37 +42,37 @@ export default function Overlay({
   const y1 = useTransform(scrollYProgress, [0, 0.25], [0, -100]);
   const scale1 = useTransform(scrollYProgress, [0, 0.25], [1, 1.1]);
 
-  // Section 2: Enter earlier and exit sooner to avoid viewport-dependent stalls.
+  // Section 2: Compressed to exit by 0.44 to ensure Section 3 has room.
   const opacity2 = useTransform(
     scrollYProgress,
-    [0.24, 0.32, 0.42, 0.52],
+    [0.2, 0.28, 0.36, 0.44],
     [0, 1, 1, 0],
   );
   const y2 = useTransform(
     scrollYProgress,
-    [0.24, 0.32, 0.42, 0.52],
+    [0.2, 0.28, 0.36, 0.44],
     [100, 0, 0, -100],
   );
   const x2 = useTransform(
     scrollYProgress,
-    [0.24, 0.32, 0.42, 0.52],
+    [0.2, 0.28, 0.36, 0.44],
     [-50, 0, 0, 50],
   );
 
-  // Section 3: Start earlier so it still appears on shorter effective scroll ranges.
+  // Section 3: Fully visible by 0.42, well before live's max of 0.521.
   const opacity3 = useTransform(
     scrollYProgress,
-    [0.48, 0.58, 0.8, 0.96],
+    [0.32, 0.42, 0.95, 1.0],
     [0, 1, 1, 0],
   );
   const y3 = useTransform(
     scrollYProgress,
-    [0.48, 0.58, 0.8, 0.96],
+    [0.32, 0.42, 0.95, 1.0],
     [100, 0, 0, -100],
   );
   const x3 = useTransform(
     scrollYProgress,
-    [0.48, 0.58, 0.8, 0.96],
+    [0.32, 0.42, 0.95, 1.0],
     [50, 0, 0, -50],
   );
 
