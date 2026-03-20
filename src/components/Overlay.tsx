@@ -65,7 +65,7 @@ export default function Overlay({
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 w-full">
-      <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center p-6 md:p-24 text-white overflow-hidden">
+      <div className="sticky top-0 h-[100dvh] w-full flex flex-col items-center justify-center p-4 md:p-24 text-white overflow-hidden">
         {/* Section 1 */}
         <motion.div
           style={{ opacity: opacity1, y: y1, scale: scale1 }}
@@ -74,7 +74,7 @@ export default function Overlay({
           <h1 className="text-4xl sm:text-6xl md:text-8xl xl:text-[10rem] font-bold tracking-tighter mb-2 md:mb-4 text-transparent bg-clip-text bg-gradient-to-br from-white to-white/60 leading-none">
             Abhishek Verma
           </h1>
-          <p className="text-sm sm:text-lg md:text-2xl font-light tracking-widest text-white/80 uppercase">
+          <p className="text-xs sm:text-lg md:text-2xl font-light tracking-widest text-white/80 uppercase">
             Full-Stack Developer
           </p>
         </motion.div>
@@ -82,9 +82,9 @@ export default function Overlay({
         {/* Section 2 */}
         <motion.div
           style={{ opacity: opacity2, y: y2, x: x2 }}
-          className="absolute left-6 sm:left-12 md:left-24 max-w-[85%] sm:max-w-xl md:max-w-4xl text-left"
+          className="absolute left-6 sm:left-12 md:left-24 max-w-[90%] sm:max-w-xl md:max-w-4xl text-left"
         >
-          <h2 className="text-3xl sm:text-5xl md:text-7xl xl:text-[6rem] font-bold tracking-tighter leading-[1.1] drop-shadow-2xl">
+          <h2 className="text-2xl sm:text-5xl md:text-7xl xl:text-[6rem] font-bold tracking-tighter leading-[1.1] drop-shadow-2xl">
             I build <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 italic font-medium font-serif">
               scalable apps.
@@ -95,9 +95,9 @@ export default function Overlay({
         {/* Section 3 */}
         <motion.div
           style={{ opacity: opacity3, y: y3, x: x3 }}
-          className="absolute right-6 sm:right-12 md:right-24 text-right max-w-[85%] sm:max-w-xl md:max-w-4xl flex flex-col items-end"
+          className="absolute right-6 sm:right-12 md:right-24 text-right max-w-[90%] sm:max-w-xl md:max-w-4xl flex flex-col items-end"
         >
-          <h2 className="text-3xl sm:text-5xl md:text-7xl xl:text-[6rem] font-bold tracking-tighter leading-[1.1] drop-shadow-2xl">
+          <h2 className="text-2xl sm:text-5xl md:text-7xl xl:text-[6rem] font-bold tracking-tighter leading-[1.1] drop-shadow-2xl">
             Bridging <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-l from-rose-400 to-orange-400">
               front-end &amp; backend.

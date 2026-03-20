@@ -20,6 +20,7 @@ export default function ScrollyCanvas({
     Array(FRAME_COUNT).fill(null),
   );
   const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [successfulImagesLoaded, setSuccessfulImagesLoaded] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
 
@@ -35,58 +36,72 @@ export default function ScrollyCanvas({
   );
 
   useEffect(() => {
+    let cancelled = false;
     let loadedCount = 0;
+    let successCount = 0;
 
-    const loadBatch = async (start: number, size: number) => {
-      const end = Math.min(start + size, FRAME_COUNT);
-      const batchPromises = [];
-      const batchIndices: number[] = [];
+    const loadRange = async (start: number, end: number, size: number) => {
+      for (let batchStart = start; batchStart < end; batchStart += size) {
+        if (cancelled) return;
 
-      for (let i = start; i < end; i++) {
-        batchIndices.push(i);
-        const promise = new Promise<HTMLImageElement | null>((resolve) => {
-          const img = new window.Image();
-          const path = getFramePath(i);
-          img.src = path;
-          img.onload = () => {
-            loadedCount++;
-            setImagesLoaded(loadedCount);
-            resolve(img);
-          };
-          img.onerror = () => {
-            console.error(`Failed to load image: ${path}`);
-            loadedCount++;
-            setImagesLoaded(loadedCount);
-            resolve(null);
-          };
+        const batchEnd = Math.min(batchStart + size, end);
+        const batchIndices: number[] = [];
+        const batchPromises: Promise<HTMLImageElement | null>[] = [];
+
+        for (let i = batchStart; i < batchEnd; i++) {
+          batchIndices.push(i);
+          batchPromises.push(
+            new Promise<HTMLImageElement | null>((resolve) => {
+              const img = new window.Image();
+              const path = getFramePath(i);
+              img.src = path;
+              img.onload = () => {
+                loadedCount++;
+                successCount++;
+                setImagesLoaded(loadedCount);
+                setSuccessfulImagesLoaded(successCount);
+                resolve(img);
+              };
+              img.onerror = () => {
+                console.error(`Failed to load image: ${path}`);
+                loadedCount++;
+                setImagesLoaded(loadedCount);
+                resolve(null);
+              };
+            }),
+          );
+        }
+
+        const loadedBatchImages = await Promise.all(batchPromises);
+        if (cancelled) return;
+
+        setImages((prev) => {
+          const next = [...prev];
+          batchIndices.forEach((index, i) => {
+            next[index] = loadedBatchImages[i];
+          });
+          return next;
         });
-        batchPromises.push(promise);
-      }
 
-      const loadedBatchImages = await Promise.all(batchPromises);
-
-      setImages((prev) => {
-        const next = [...prev];
-        batchIndices.forEach((index, i) => {
-          next[index] = loadedBatchImages[i];
-        });
-        return next;
-      });
-
-      if (end < FRAME_COUNT) {
-        setTimeout(() => loadBatch(end, size), 20);
+        // Yield briefly to keep scrolling responsive while frames stream in.
+        await new Promise((resolve) => setTimeout(resolve, 20));
       }
     };
 
-    // Prioritized loading: Load first 40 frames quickly, then the rest in batches
     const startLoading = async () => {
-      await loadBatch(0, 40); // Initial high-priority batch
-      if (FRAME_COUNT > 40) {
-        loadBatch(40, 15); // Rest in smaller background batches
+      const priorityFrameCount = Math.min(40, FRAME_COUNT);
+      await loadRange(0, priorityFrameCount, priorityFrameCount);
+
+      if (FRAME_COUNT > priorityFrameCount) {
+        await loadRange(priorityFrameCount, FRAME_COUNT, 15);
       }
     };
 
     startLoading();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const drawImage = useCallback(
@@ -123,24 +138,20 @@ export default function ScrollyCanvas({
       const canvasRatio = canvas.width / canvas.height;
       const imgRatio = img.width / img.height;
 
-      let drawWidth = canvas.width;
-      let drawHeight = canvas.height;
-      let offsetX = 0;
-      let offsetY = 0;
+      let drawWidth, drawHeight, offsetX, offsetY;
 
       if (canvasRatio > imgRatio) {
+        // Canvas is wider than image (fills width, crops height)
+        drawWidth = canvas.width;
         drawHeight = canvas.width / imgRatio;
+        offsetX = 0;
         offsetY = (canvas.height - drawHeight) / 2;
       } else {
-        if (canvasRatio < 0.6) {
-          drawWidth = canvas.width * 1.5;
-          drawHeight = drawWidth / imgRatio;
-          offsetX = (canvas.width - drawWidth) / 2;
-          offsetY = (canvas.height - drawHeight) * 0.3;
-        } else {
-          drawWidth = canvas.height * imgRatio;
-          offsetX = (canvas.width - drawWidth) / 2;
-        }
+        // Canvas is taller than image (fills height, crops width)
+        drawHeight = canvas.height;
+        drawWidth = canvas.height * imgRatio;
+        offsetY = 0;
+        offsetX = (canvas.width - drawWidth) / 2;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -189,7 +200,7 @@ export default function ScrollyCanvas({
       {/* Fallback background image that loads immediately for the blur effect */}
       <div
         className={`absolute inset-0 w-full h-full z-0 transition-opacity duration-1000 ${
-          imagesLoaded < Math.min(FRAME_COUNT, 30)
+          successfulImagesLoaded < Math.min(FRAME_COUNT, 30)
             ? "opacity-100"
             : "opacity-0 pointer-events-none"
         }`}
